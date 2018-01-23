@@ -1,0 +1,134 @@
+apply plugin: 'com.android.application'
+apply plugin: 'jacoco'
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion '27.0.2'
+    defaultConfig {
+        applicationId "br.com.jluiz20.baseproject"
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "br.com.jluiz20.baseproject.MockTestRunner"
+        ndk {
+            abiFilters "armeabi-v7a", "x86", "armeabi", "mips"
+        }
+        multiDexEnabled true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildTypes {
+        debug {
+            testCoverageEnabled true
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    testOptions {
+        animationsDisabled = true
+        unitTests.all {
+            testLogging {
+                events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+            }
+            jacoco {
+                includeNoLocationClasses = true
+            }
+        }
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+ext {
+    supportLibraryVersion = '27.0.2'
+    daggerVersion = "2.12"
+    butterKnifeVersion = '8.8.1'
+    googleServicesVersion = '11.4.2'
+    eventbusVersion = '3.0.0'
+    versionsArch = '1.0.0'
+    rxJavaVersion = '2.1.4'
+    rxAndroidVersion = '2.0.1'
+    espressoCore = '3.0.1'
+    powerMock2 = '1.7.0RC4'
+    supportTest = '1.0.1'
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.android.support:appcompat-v7:${supportLibraryVersion}"
+    implementation "com.android.support:support-v4:${supportLibraryVersion}"
+    implementation "com.android.support:design:${supportLibraryVersion}"
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation "com.jakewharton:butterknife:${butterKnifeVersion}"
+    annotationProcessor "com.jakewharton:butterknife-compiler:${butterKnifeVersion}"
+
+
+    implementation "com.google.dagger:dagger:${daggerVersion}"
+    annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
+    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
+    implementation "org.greenrobot:eventbus:${eventbusVersion}"
+
+    implementation 'com.android.support:multidex:1.0.2'
+
+    // RxJava
+    implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
+    implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
+
+    //Tests
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation "com.android.support.test:runner:${supportTest}"
+    androidTestImplementation "com.android.support.test:rules:${supportTest}"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:${espressoCore}"
+    androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
+    androidTestImplementation 'org.mockito:mockito-android:2.8.9'
+    testImplementation 'org.hamcrest:hamcrest-core:1.3'
+    testImplementation 'org.mockito:mockito-core:2.8.9'
+    testImplementation "org.powermock:powermock-api-mockito2:${powerMock2}"
+    testImplementation "org.powermock:powermock-module-junit4-rule-agent:${powerMock2}"
+    testImplementation "org.powermock:powermock-module-junit4-rule:${powerMock2}"
+    testImplementation "org.powermock:powermock-module-junit4:${powerMock2}"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:${espressoCore}"
+    androidTestImplementation "com.android.support.test.espresso:espresso-intents:${espressoCore}"
+    androidTestImplementation "com.android.support.test.espresso:espresso-contrib:${espressoCore}"
+    androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
+
+}
+
+
+task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
+    group = "Reporting"
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+    def fileFilter = ['**/R.class',
+                      '**/R$*.class',
+                      '**/BuildConfig.*',
+                      '**/*$ViewInjector*.*',
+                      '**/*$ViewBinder*.*',
+                      '**/*$MembersInjector*.*',
+                      '**/Manifest*.*',
+                      '**/*Test*.*',
+                      'android/**/*.*']
+    def debugTree = fileTree(dir: "${buildDir}/intermediates/classes/debug", excludes: fileFilter)
+
+    def mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories = files([mainSrc])
+
+    classDirectories = files([debugTree])
+
+    executionData = fileTree(dir: project.projectDir, includes: ['**/*.exec’ , ‘**/*.ec'])
+}
+
+task instrumentTest(dependsOn: connectedCheck)
