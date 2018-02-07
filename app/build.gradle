@@ -5,12 +5,12 @@ android {
     compileSdkVersion 27
     buildToolsVersion '27.0.2'
     defaultConfig {
-        applicationId "br.com.jluiz20.baseproject"
+        applicationId "br.com.jluiz20.income"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "br.com.jluiz20.baseproject.MockTestRunner"
+        testInstrumentationRunner "br.com.jluiz20.income.MockTestRunner"
         ndk {
             abiFilters "armeabi-v7a", "x86", "armeabi", "mips"
         }
