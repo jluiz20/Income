@@ -1,13 +1,13 @@
 package br.com.jluiz20.income.presentation.main;
 
 import android.os.Bundle;
-import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -19,38 +19,56 @@ import butterknife.ButterKnife;
 /**
  * @author João Luiz Vieira <vieira.jluiz@gmail.com>.
  */
-public class MainActivity extends AppCompatActivity implements MainActivityContract.View, TextWatcher {
+public class MainActivity extends AppCompatActivity implements MainActivityContract.View {
     private static final String TAG = "MainActivity";
     @Inject
     MainActivityContract.Presenter presenter;
-    @BindView(R.id.montly_savings)
-    TextView uiSavings;
-
-    @BindView(R.id.tiet_desired_monthly_income)
-    TextInputEditText uiDesiredMonthlyEarnings;
 
     @BindView(R.id.sb_desired_monthly_income)
     SeekBar uiDesiredMonthlyEarningsSeekBar;
 
     @BindView(R.id.tv_desired_monthly_income)
-    TextView uiDesiredMonthlyEarningsTextView;
+    EditText uiDesiredMonthlyEarningsTextView;
 
-    @BindView(R.id.tiet_number_of_periods)
-    TextInputEditText uiNumberOfPeriods;
+    @BindView(R.id.tv_desired_monthly_income_min)
+    EditText uiDesiredMonthlyEarningsMinTextView;
 
-    @BindView(R.id.tiet_rate)
-    TextInputEditText uiRatePerPeriod;
+    @BindView(R.id.tv_desired_monthly_income_max)
+    EditText uiDesiredMonthlyEarningsMaxTextView;
 
-    @BindView(R.id.tiet_initial_value)
-    TextInputEditText uiInitialValue;
-    private double desiredEarnings = 1000d;
-    private double numberOfPeriods = 120;
-    private double ratePerPeriod = 0.006d;
-    private double initialValue = 0.0d;
 
-    private int desiredEarningsMin = 1000;
-    private int desiredEarningsMax = 10000;
+    @BindView(R.id.sb_number_of_periods)
+    SeekBar uiNumberOfPeriodsSeekBar;
 
+    @BindView(R.id.tv_number_of_periods)
+    EditText uiNumberOfPeriodsTextView;
+
+    @BindView(R.id.tv_number_of_periods_min)
+    EditText uiNumberOfPeriodsMinTextView;
+
+    @BindView(R.id.tv_number_of_periods_max)
+    EditText uiNumberOfPeriodsMaxTextView;
+
+
+    @BindView(R.id.sb_rate_per_period)
+    SeekBar uiRatePerPeriodSeekBar;
+
+    @BindView(R.id.tv_rate_per_period)
+    EditText uiRatePerPeriodTextView;
+
+    @BindView(R.id.tv_rate_per_period_min)
+    EditText uiRatePerPeriodMinTextView;
+
+    @BindView(R.id.tv_rate_per_period_max)
+    EditText uiRatePerPeriodMaxTextView;
+
+    @BindView(R.id.tv_current_value)
+    EditText uiCurrentValue;
+
+    @BindView(R.id.savings_per_period)
+    TextView uiSavingsPerPeriodTextView;
+
+    NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,98 +79,85 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
         ((IncomeApplication) getApplication()).component().inject(this);
 
-        setListeners();
 
-        setInitialValues();
-
+        setSeekBarListeners();
     }
 
-    private void setInitialValues() {
-        uiDesiredMonthlyEarnings.setText(formatCurrency(desiredEarnings));
-        uiDesiredMonthlyEarnings.setSelection(uiDesiredMonthlyEarnings.getText().length());
-        uiNumberOfPeriods.setText(String.valueOf(numberOfPeriods));
-        uiRatePerPeriod.setText(String.valueOf(ratePerPeriod));
-        uiInitialValue.setText(formatCurrency(initialValue));
-        uiSavings.setText(formatCurrency(calculate()));
+    private void setSeekBarListeners() {
+        setDesiredEarningSeekBarListener();
+        setNumberOfPeriodsSeekBarListener();
+        setRatePerPeriodSeekBarListener();
     }
 
-    private double calculate() {
-        if (!validate()) {
-            return 0;
-        }
-        return presenter.calculate(ratePerPeriod, numberOfPeriods, initialValue, desiredEarnings);
-    }
-
-    private double getDouble(String text) {
-        double value = 0d;
-        try {
-            value = Double.valueOf(text);
-        } catch (Exception e) {
-            Log.d(TAG, "getDouble: parse failed");
-        }
-        return value;
-    }
-
-    private boolean validate() {
-        desiredEarnings = getDouble(uiDesiredMonthlyEarnings.getText().toString());
-        if (desiredEarnings <= 0) {
-            uiDesiredMonthlyEarnings.setError(getString(R.string.error_value_cannot_be_zero));
-            return false;
-        } else {
-            uiDesiredMonthlyEarnings.setError(null);
-        }
-        numberOfPeriods = getDouble(uiNumberOfPeriods.getText().toString());
-        if (numberOfPeriods <= 0) {
-            uiNumberOfPeriods.setError(getString(R.string.error_value_cannot_be_zero));
-            return false;
-        } else {
-            uiNumberOfPeriods.setError(null);
-        }
-        ratePerPeriod = getDouble(uiRatePerPeriod.getText().toString());
-        if (ratePerPeriod <= 0) {
-            uiRatePerPeriod.setError(getString(R.string.error_value_cannot_be_zero));
-            return false;
-        } else {
-            uiRatePerPeriod.setError(null);
-        }
-        return true;
-    }
-
-    private void setListeners() {
-        uiDesiredMonthlyEarnings.addTextChangedListener(this);
-        uiNumberOfPeriods.addTextChangedListener(this);
-        uiRatePerPeriod.addTextChangedListener(this);
-        uiInitialValue.addTextChangedListener(this);
-
+    private void setDesiredEarningSeekBarListener() {
         uiDesiredMonthlyEarningsSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                double newValue = (seekBar.getProgress() * (desiredEarningsMax - desiredEarningsMin) / 100) + desiredEarningsMin;
-                uiDesiredMonthlyEarningsTextView.setText(formatCurrency(newValue));
-                uiDesiredMonthlyEarnings.setText(String.valueOf(newValue));
-                calculate();
+                if (b) {
+                    presenter.onUserChangedDesiredEarningsSeekBar(seekBar.getProgress());
+                }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                //not Used
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                // not used
             }
         });
     }
 
-    private String formatCurrency(double value) {
-        return String.valueOf(value);
+    private void setNumberOfPeriodsSeekBarListener() {
+        uiNumberOfPeriodsSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if (b) {
+                    presenter.onUserChangedNumberOfPeriodsSeekBar(seekBar.getProgress());
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //not Used
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // not used
+            }
+        });
     }
+
+    private void setRatePerPeriodSeekBarListener() {
+        uiRatePerPeriodSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if (b) {
+                    presenter.onUserChangedRatePerPeriodSeekBar(seekBar.getProgress());
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //not Used
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // not used
+            }
+        });
+    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
         presenter.onViewResume(this);
+        presenter.setInitialValues();
     }
 
     @Override
@@ -166,17 +171,50 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     }
 
     @Override
-    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+    public void onDesiredEarningsChanged(double desiredEarningsMin, double desiredEarnings, double desiredEarningsMax) {
+        uiDesiredMonthlyEarningsMinTextView.setText(formatNumber(desiredEarningsMin));
+        uiDesiredMonthlyEarningsMaxTextView.setText(formatNumber(desiredEarningsMax));
+        uiDesiredMonthlyEarningsTextView.setText(formatNumber(desiredEarnings));
+        uiDesiredMonthlyEarningsTextView.clearFocus();
+        double position = getSeekBarPosition(desiredEarningsMin, desiredEarnings, desiredEarningsMax);
+        uiDesiredMonthlyEarningsSeekBar.setProgress((int) position);
     }
 
     @Override
-    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+    public void onNumberOfPeriodsChanged(int numberOfPeriodsMin, int numberOfPeriods, int numberOfPeriodsMax) {
+        uiNumberOfPeriodsMinTextView.setText(String.valueOf(numberOfPeriodsMin));
+        uiNumberOfPeriodsMaxTextView.setText(String.valueOf(numberOfPeriodsMax));
+        uiNumberOfPeriodsTextView.setText(String.valueOf(numberOfPeriods));
+        double position = getSeekBarPosition(numberOfPeriodsMin, numberOfPeriods, numberOfPeriodsMax);
+        uiNumberOfPeriodsSeekBar.setProgress((int) position);
     }
 
     @Override
-    public void afterTextChanged(Editable editable) {
-        uiSavings.setText(formatCurrency(calculate()));
+    public void onRatePerPeriodChanged(double ratePerPeriodMin, double ratePerPeriod, double ratePerPeriodMax) {
+        uiRatePerPeriodMinTextView.setText(formatNumber(ratePerPeriodMin));
+        uiRatePerPeriodMaxTextView.setText(formatNumber(ratePerPeriodMax));
+        uiRatePerPeriodTextView.setText(formatNumber(ratePerPeriod));
+        double position = getSeekBarPosition(ratePerPeriodMin, ratePerPeriod, ratePerPeriodMax);
+        uiRatePerPeriodSeekBar.setProgress((int) position);
+    }
+
+    @Override
+    public void onCurrentValueChanged(double currentValue) {
+        uiCurrentValue.setText(formatNumber(currentValue));
+    }
+
+    @Override
+    public void onSavingsPerPeriodChanged(double value) {
+        uiSavingsPerPeriodTextView.setText(formatNumber(value));
+    }
+
+    private double getSeekBarPosition(double min, double actual, double man) {
+        return (actual - min) / (man - min) * 100;
+    }
+
+    private String formatNumber(double value) {
+        nf_out.setMinimumFractionDigits(2);
+        nf_out.setMaximumFractionDigits(2);
+        return nf_out.format(value);
     }
 }

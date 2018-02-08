@@ -5,6 +5,10 @@
     <string name="title_notifications">Notifications</string>
 
 
+    <string name="label_currency">"R$"</string>
+    <string name="label_percentage">"%"</string>
+    <string name="label_period">"months"</string>
+    <string name="label_period_result">"monthly"</string>
     <string name="label_desired_monthly_earnings">Desired Earnings Per Period</string>
     <string name="label_number_of_periods">Number of periods</string>
     <string name="label_rate">Rate per period</string>
