@@ -4,7 +4,9 @@
     <modules>
       <module fileurl="file://C:\Pixida\Git\Samples\AndroidBaseProject\BaseAndroidProject.iml" filepath="C:\Pixida\Git\Samples\AndroidBaseProject\BaseAndroidProject.iml" />
       <module fileurl="file://$PROJECT_DIR$/Income.iml" filepath="$PROJECT_DIR$/Income.iml" />
+      <module fileurl="file://C:\git\Samples\Income\Income.iml" filepath="C:\git\Samples\Income\Income.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\git\Samples\Income\app\app.iml" filepath="C:\git\Samples\Income\app\app.iml" />
     </modules>
   </component>
 </project>

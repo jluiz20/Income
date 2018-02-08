@@ -32,6 +32,8 @@ public interface MainActivityContract {
          */
         void onViewResume(View view);
 
+        double calculate(double ratePerPeriod, double numberOfPeriods, double initialValue, double desiredEarnings);
+
         /**
          * Called when then view enters on pause state, usually this is the time to release strong
          * references to an Activity or fragment for example.

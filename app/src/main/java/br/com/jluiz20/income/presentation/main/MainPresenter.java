@@ -3,6 +3,8 @@ package br.com.jluiz20.income.presentation.main;
 
 import android.util.Log;
 
+import org.apache.poi.ss.formula.functions.FinanceLib;
+
 import javax.inject.Inject;
 
 import br.com.jluiz20.income.model.usecase.UseCaseCallback;
@@ -58,6 +60,14 @@ public class MainPresenter extends BasePresenter implements MainActivityContract
         });
     }
 
+
+    @Override
+    public double calculate(double ratePerPeriod, double numberOfPeriods, double initialValue, double desiredEarnings) {
+        if (ratePerPeriod > 0 && numberOfPeriods > 0 && desiredEarnings > 0) {
+            return FinanceLib.pmt(ratePerPeriod, numberOfPeriods, initialValue, -desiredEarnings / ratePerPeriod, false);
+        }
+        return 0;
+    }
 
     private boolean hasViewAttached() {
         return view != null;

@@ -3,4 +3,14 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+
+    <string name="label_desired_monthly_earnings">Desired Earnings Per Period</string>
+    <string name="label_number_of_periods">Number of periods</string>
+    <string name="label_rate">Rate per period</string>
+    <string name="label_initial_value">Initial Value</string>
+    <string name="label_monthly_savings">You need to save:</string>
+    <string name="error_value_cannot_be_zero">Cannot be less than 0 or empty</string>
+
+
 </resources>
